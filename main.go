@@ -53,22 +53,13 @@ type Measurement struct {
 
 func (m *Measurement) Sql() []Sql {
 	var ret []Sql
-	sql := " SELECT team_id team,project_id project,user_id user,count value,UNIX_TIMESTAMP(date) * 1000000000 time FROM statistic_records WHERE type = ? "
-	count := " SELECT COUNT(1) FROM statistic_records WHERE type = ? "
+	sql := " SELECT team_id team,project_id project,user_id user,count value,UNIX_TIMESTAMP(date) * 1000000000 time FROM statistic_records WHERE type = ? AND count > 0 "
+	count := " SELECT COUNT(1) FROM statistic_records WHERE type = ? AND count > 0 "
 	for _, dim := range m.dimension {
 		ret = append(ret, Sql{
 			query: sql + dim.Suffix(),
 			count: count + dim.Suffix(),
 		})
-	}
-	return ret
-}
-
-func (m *Measurement) Count() []string {
-	var ret []string
-	sql := " SELECT COUNT(1) count FROM statistic_records WHERE type = ? "
-	for _, dim := range m.dimension {
-		ret = append(ret, sql+dim.Suffix())
 	}
 	return ret
 }
@@ -249,7 +240,7 @@ func (c *Importer) write(binary string) {
 
 func main() {
 	database := flag.String("database", "", "Mysql 数据库连接地址：root:123@tcp(127.0.0.1:3306)/coding_statistic")
-	influxURL := flag.String("influx-url", "", "influxdb 数据库连接地址：http://127.0.0.1:8086/write?db=statistic")
+	influxURL := flag.String("influx-url", "", "influxdb 数据库连接地址：http://127.0.0.1:8086/write?db=statistic&u=root&p=coding123")
 	flag.Parse()
 
 	if len(*database) <= 0 ||
