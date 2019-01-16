@@ -184,19 +184,19 @@ func (c *Importer) readRow(db *sql.DB, measurement Measurement, sql Sql) {
 		count   int32
 	)
 
-	rows, err := db.Query(sql.count, measurement.code)
-	defer rows.Close()
+	counterRow, err := db.Query(sql.count, measurement.code)
+	defer counterRow.Close()
 	if err != nil {
 		log.Panicln("Read measurement " + measurement.value + " count " + err.Error())
 	}
-	for rows.Next() {
-		rows.Scan(&count)
+	for counterRow.Next() {
+		counterRow.Scan(&count)
 		if err != nil {
 			log.Panicln("Read count error " + err.Error())
 		}
 	}
 
-	rows, err = db.Query(sql.query, measurement.code)
+	rows, err := db.Query(sql.query, measurement.code)
 	defer rows.Close()
 	if err != nil {
 		log.Panicln("Read measurement " + measurement.value + " " + err.Error())
