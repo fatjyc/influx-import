@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # This install script is intended to download and install the latest available
-# release of the coding-cli.
+# release of the influx-import.
 #
 # It attempts to identify the current platform and an error will be thrown if
 # the platform is not supported.
@@ -140,7 +140,7 @@ if [ "${OS}" != "linux" ] && { [ "${ARCH}" = "ppc64" ] || [ "${ARCH}" = "ppc64le
     # ppc64 and ppc64le are only supported on Linux.
     echo "${OS}-${ARCH} is not supported by this installation script"
 else
-    BINARY="coding-cli-${OS}-${ARCH}"
+    BINARY="influx-import-${OS}-${ARCH}"
 fi
 
 # add .exe if on windows
@@ -167,7 +167,7 @@ downloadFile "$BINARY_URL" "$DOWNLOAD_FILE"
 echo "Setting executable permissions."
 chmod +x "$DOWNLOAD_FILE"
 
-INSTALL_NAME="coding-cli"
+INSTALL_NAME="influx-import"
 
 if [ "$OS" = "windows" ]; then
     INSTALL_NAME="$INSTALL_NAME.exe"
