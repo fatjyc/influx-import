@@ -246,7 +246,7 @@ func main() {
 
 	if len(*database) <= 0 ||
 		len(*influxURL) <= 0 {
-		log.Fatalf("Usage : influx-import --host --port --databse --username --password")
+		log.Fatalf("Usage : influx-import --database --influx-url --chunk")
 	}
 
 	importer := newImport(*database, *influxURL, *chunk)
