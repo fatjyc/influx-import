@@ -11,8 +11,6 @@ import (
 	"strings"
 )
 
-const ChunkSize = 1000
-
 type Sql struct {
 	query string
 	count string
@@ -68,9 +66,10 @@ type Importer struct {
 	measurement []Measurement
 	database    string
 	influxURL   string
+	chunk       int
 }
 
-func newImport(database string, influxURL string) Importer {
+func newImport(database string, influxURL string, chunk int) Importer {
 	var mapping = []Measurement{
 		{
 			code:  28,
@@ -153,6 +152,7 @@ func newImport(database string, influxURL string) Importer {
 		measurement: mapping,
 		database:    database,
 		influxURL:   influxURL,
+		chunk:       chunk,
 	}
 }
 
@@ -209,15 +209,15 @@ func (c *Importer) readRow(db *sql.DB, measurement Measurement, sql Sql) {
 			log.Panicln("Read row error " + err.Error())
 		}
 		binary = append(binary, fmt.Sprintln(measurement.value+",team_id="+team+",project_id="+project+",user_id="+user+" value="+value+" "+time))
-		if len(binary) == ChunkSize {
-			i += ChunkSize
-			fmt.Printf("\rWrite date to influxdb %d/%d", i, count)
+		if len(binary) == c.chunk {
+			i += c.chunk
+			fmt.Printf("\rWrite data to influxdb %d/%d", i, count)
 			c.write(strings.Join(binary, ""))
 			binary = make([]string, 0)
 		}
 	}
 	i += len(binary)
-	fmt.Printf("\rWrite date to influxdb %d/%d", i, count)
+	fmt.Printf("\rWrite data to influxdb %d/%d", i, count)
 	c.write(strings.Join(binary, ""))
 	binary = make([]string, 1)
 	err = rows.Err()
@@ -234,13 +234,14 @@ func (c *Importer) write(binary string) {
 	cmd.Stderr = &stderr
 	err := cmd.Run()
 	if err != nil {
-		fmt.Printf("err:\n%s\n", string(stderr.Bytes()))
+		fmt.Printf("\nerr:\n%s\n", string(stderr.Bytes()))
 	}
 }
 
 func main() {
 	database := flag.String("database", "", "Mysql 数据库连接地址：root:123@tcp(127.0.0.1:3306)/coding_statistic")
 	influxURL := flag.String("influx-url", "", "influxdb 数据库连接地址：http://127.0.0.1:8086/write?db=statistic&u=root&p=coding123")
+	chunk := flag.Int("chunk", 1000, "chunk 每次写入数据大小")
 	flag.Parse()
 
 	if len(*database) <= 0 ||
@@ -248,6 +249,6 @@ func main() {
 		log.Fatalf("Usage : influx-import --host --port --databse --username --password")
 	}
 
-	importer := newImport(*database, *influxURL)
+	importer := newImport(*database, *influxURL, *chunk)
 	importer.run()
 }
