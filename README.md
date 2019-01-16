@@ -10,5 +10,5 @@
 windows 用户请先设置环境变量 $GOBIN
 
 ```bash
-curl https://raw.githubusercontent.com/suuuy/influx-importer/master/install.sh | sh
+curl https://raw.githubusercontent.com/suuuy/influx-import/master/install.sh | sh
 ```
